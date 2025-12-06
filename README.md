@@ -135,3 +135,110 @@ December 2025
 
 
 ```
+
+
+---
+
+# **Task 2: Reproducible Data Pipeline with DVC**
+
+## **Overview**
+
+In regulated industries such as finance and insurance, it is critical to have **reproducible and auditable analyses**.
+Task-2 implements **Data Version Control (DVC)** to ensure:
+
+* Datasets are versioned alongside code
+* Analysis can be reproduced anytime
+* Compliance with auditing and regulatory standards
+
+---
+
+## **Steps Completed**
+
+### **1. Branch and GitHub Integration**
+
+* Created a new branch: `task-2`
+* Merged relevant Task-1 changes via Pull Request
+* Descriptive commits added for each DVC setup step
+
+---
+
+### **2. DVC Installation**
+
+```bash
+pip install dvc
+```
+
+---
+
+### **3. DVC Initialization**
+
+```bash
+dvc init
+```
+
+* This created `.dvc` folder and config files to manage datasets.
+
+---
+
+### **4. Local Remote Storage Configuration**
+
+1. Create a storage folder:
+
+```bash
+mkdir ./dvc_storage
+```
+
+2. Add it as a DVC remote:
+
+```bash
+dvc remote add -d localstorage ./dvc_storage
+```
+
+* `-d` sets it as the **default remote** for the project
+
+---
+
+### **5. Adding and Tracking Dataset**
+
+```bash
+dvc add data/MachineLearningRating_v3.csv
+```
+
+* This generates a `.dvc` file: `MachineLearningRating_v3.csv.dvc`
+* Tracks the dataset without storing it directly in Git
+
+---
+
+### **6. Commit Changes**
+
+```bash
+git add data/.gitignore MachineLearningRating_v3.csv.dvc
+git commit -m "Task-2: Add dataset and DVC tracking files"
+```
+
+---
+
+### **7. Push Data to Local Remote**
+
+```bash
+dvc push
+```
+
+* Dataset is now versioned and stored in `./dvc_storage`
+* Any team member can **pull the exact version** later using:
+
+```bash
+dvc pull
+```
+
+---
+
+## **Benefits Achieved**
+
+* ✅ Reproducible analysis: data + code versioned together
+* ✅ Auditable workflow: dataset versions tracked in Git + DVC
+* ✅ Storage efficient: large datasets not stored in Git
+* ✅ Ready for future CI/CD integration
+
+
+
