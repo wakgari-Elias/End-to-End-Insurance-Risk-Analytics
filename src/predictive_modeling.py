@@ -10,6 +10,8 @@ from xgboost import XGBClassifier, XGBRegressor
 import shap
 import matplotlib.pyplot as plt
 import os
+  from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 
 # Create plots folder
 os.makedirs("../plots", exist_ok=True)
@@ -119,3 +121,42 @@ if __name__ == "__main__":
     
     print("\nTASK-4 COMPLETE — READY FOR PRODUCTION")
     print("Next: Deploy as API")
+    
+  
+
+print("Training baseline models on Claim Severity...")
+
+# Use same data as XGBoost severity
+claim_df = df[df['TotalClaims'] > 0]
+X_sev = pd.get_dummies(claim_df[cat_cols + num_cols], columns=cat_cols, drop_first=True).fillna(0)
+y_sev = claim_df['TotalClaims']
+
+X_train_s, X_test_s, y_train_s, y_test_s = train_test_split(X_sev, y_sev, test_size=0.2, random_state=42)
+
+# Linear Regression
+lr = LinearRegression()
+lr.fit(X_train_s, y_train_s)
+lr_pred = lr.predict(X_test_s)
+lr_rmse = np.sqrt(mean_squared_error(y_test_s, lr_pred))
+lr_r2 = r2_score(y_test_s, lr_pred)
+
+# Random Forest
+rf = RandomForestRegressor(n_estimators=200, max_depth=10, random_state=42, n_jobs=-1)
+rf.fit(X_train_s, y_train_s)
+rf_pred = rf.predict(X_test_s)
+rf_rmse = np.sqrt(mean_squared_error(y_test_s, rf_pred))
+rf_r2 = r2_score(y_test_s, rf_pred)
+
+# XGBoost (already trained)
+xgb_rmse = np.sqrt(mean_squared_error(y_test_s, sev_model.predict(X_test_s)))
+xgb_r2 = r2_score(y_test_s, sev_model.predict(X_test_s))
+
+# FINAL COMPARISON TABLE
+comparison = pd.DataFrame({
+    'Model': ['Linear Regression', 'Random Forest', 'XGBoost (Best)'],
+    'RMSE': [f"R{lr_rmse:,.0f}", f"R{rf_rmse:,.0f}", f"R{int(xgb_rmse):,}"],
+    'R²': [f"{lr_r2:.3f}", f"{rf_r2:.3f}", f"{xgb_r2:.3f}"]
+})
+
+print("MODEL COMPARISON TABLE")
+display(comparison.style.background_gradient(cmap='Blues'))
